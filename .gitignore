@@ -1,0 +1,43 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment variables
+.env
+.env.local
+.env.production
+
+# SSL certificates (if they're sensitive)
+*.cert
+*.key
+*.pem
+
+# Logs
+logs/
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Build files
+dist/
+build/
+
+# Coverage directory
+coverage/
+
+# Optional: Keep sensitive configs
+config/dev.js
+config/prod.js
+
+# PM2 logs
+.pm2/
