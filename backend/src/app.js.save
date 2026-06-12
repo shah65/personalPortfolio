@@ -1,12 +1,11 @@
 const express = require('express');
 require('dotenv').config();
 const cookieParser = require('cookie-parser');
+const visitorRoutes = require('./routes/visitor.route');
 const helmet = require('helmet');
 const compression = require('compression');
 const cors = require('cors'); // Add this
 const mongoose = require('mongoose');        // ← was missing
-const visitorRoutes = require('./routes/visitor.route');
-
 const skillRoutes = require("./routes/skill.route");
 const authR = require("./routes/auth.route");
 const projectR = require('./routes/project.route');
@@ -60,8 +59,6 @@ connectRedis().catch((err) => {
 app.use('/api/v1/authentication', authR);   // ← leading slash added
 app.use('/api/v1/proj', projectR);
 app.use('/api/v1/skill', skillRoutes);  // Add this line
-app.use('/api/v1/visitor', visitorRoutes);
-
 
 // ── 7. Health check ─────────────────────────────────────────────
 app.get('/health', (req, res) => {
@@ -70,9 +67,7 @@ app.get('/health', (req, res) => {
     message: 'Server is healthy',
     timestamp: new Date().toISOString(),
     services: {
-      redis: redisClient.isReady ? 'connected' : 'disconnected',   // ← isReady not getClient()
-      mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
-    }
+      redis: redisClient.isReady ? 'connected' : 'disconnec
   });
 });
 

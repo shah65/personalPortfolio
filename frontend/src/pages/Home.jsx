@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import ScrollScene3D from '../components/3d/ScrollScene3D';
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
+import VisitorCounter from '../components/VisitorCounter';
+
 
 // Typewriter hook
 const useTypewriter = (words, speed = 80, pause = 2000) => {
@@ -317,6 +319,8 @@ const Home = () => {
           </motion.div>
         </div>
       </section>
+      {/* Add visitor counter */}
+      <VisitorCounter />
     </div>
   );
 };
