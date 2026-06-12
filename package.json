@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "compression": "^1.8.1",
+    "express-mongo-sanitize": "^2.2.0",
+    "express-rate-limit": "^8.5.2",
+    "helmet": "^8.2.0",
+    "ioredis": "^5.11.1",
+    "redis": "^6.0.0"
+  }
+}

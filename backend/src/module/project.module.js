@@ -2,7 +2,7 @@ const mongo = require("mongoose");
 
 const projectSchema = new  mongo.Schema({
   projectUserName:{
-    type:mongo.Schema.Type.ObjectId,
+    type:mongo.Schema.Types.ObjectId,
     ref:"User",
     required:[true,"Project must have an owner (User name is required"],
     index:true

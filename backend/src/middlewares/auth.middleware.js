@@ -10,8 +10,7 @@ const {
 
  
 
-// Authentication middleware
-export const protect = async (req, res, next) => {
+const protect = async (req, res, next) => {
   try {
     let token;
 
@@ -36,3 +35,5 @@ export const protect = async (req, res, next) => {
     next(error);
   }
 }
+
+module.exports = {protect};

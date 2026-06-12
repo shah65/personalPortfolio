@@ -1,22 +1,22 @@
 const app = require("./src/app");
-const connectToDB = require("./src/config/DB.config")
-const https = require('https');
-const fs = require('fs');
-const path = require('path');
+const connectToDB = require("./src/config/DB.config");
+const seedDefaultUser = require("./src/seed"); // Import the seed function
+const http = require('http');
 
+// Connect to database
 connectToDB();
- 
-// SSL options
-const options = {
-  key: fs.readFileSync(path.join(__dirname, "ecdsa.key")),
-  cert: fs.readFileSync(path.join(__dirname, "ecdsa.cert"))
-};
 
-const Server = https.createServer(options,app);
+// Seed default user after database connection is established
+setTimeout(async () => {
+  await seedDefaultUser();
+}, 3000); // Wait 3 seconds for DB connection
 
-//now create https server
-const httpsServer = https.createServer(options, app);
-httpsServer.listen(process.env.PORT || 3000, () => {
-  console.log(`✅ HTTPS Server running at https://localhost=> ${process.env.PORT }`);
-  console.log(`📋 Certificate: }`);
+// Create HTTP server (or HTTPS if you have certificates)
+const server = http.createServer(app);
+
+const PORT = process.env.PORT || 3000;
+
+server.listen(PORT, () => {
+  console.log(`✅ Server running on http://localhost:${PORT}`);
+  console.log(`📋 Default admin credentials will be created automatically`);
 });

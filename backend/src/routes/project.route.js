@@ -1,13 +1,14 @@
 const express = require("express");
-import protect  from '../middlewares/auth.middleware';
+const  protect  = require('../middlewares/auth.middleware');
 const projectController = require("../controllers/project.controller");
+const { cacheMiddleware } = require('../middlewares/cache.middleware');
 
 const router = express.Router();
 
 //CRUD OPERATION
 router.post('/projects', projectController.storeProject);
-router.get('/projects', projectController.getAllProjects);
-router.get('/project/:id', projectController.getSingleProject);
+router.get('/projects', cacheMiddleware('projects'), projectController.getAllProjects);
+router.get('/project/:id', cacheMiddleware('projects'), projectController.getSingleProject);
 router.put('/project/:id', projectController.updateProject);
 router.delete('/project/:id', projectController.deleteProject);
 

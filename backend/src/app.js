@@ -1,20 +1,76 @@
 const express = require('express');
 require('dotenv').config();
 const cookieParser = require('cookie-parser');
-const authR = require("./routes/auth.route")
-const projectR = require('./routes/project.route')
+const helmet = require('helmet');
+const compression = require('compression');
+const cors = require('cors'); // Add this
+const mongoose = require('mongoose');        // ← was missing
+const skillRoutes = require("./routes/skill.route");
+const authR = require("./routes/auth.route");
+const projectR = require('./routes/project.route');
+const { apiLimiter, authLimiter, projectReadLimiter, projectWriteLimiter } = require('./middlewares/rateLimit.middleware'); // ← correct names
+const errorHandler = require('./middlewares/errorHandler');
+const { redisClient, connectRedis } = require('./config/redis.config'); // ← named export
 
-const app = express();  // ✅ Fixed - added parentheses
- 
+const app = express();
 
-// Middlewares
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+//cots setup
+app.use(cors({
+  origin:["http://localhost:5173","http://localhost:5174","http://localhost:3000"],
+  credentials:true, //allowed cooke to be sent
+  methods:["GET","POST","DELETE","PUT"],
+  allowedHeaders:['Content-Type','Authorization','Cookie'],
+}))
+
+// ── 1. Security headers (always first) ──────────────────────────
+app.use(helmet());
+
+// ── 2. Body parsing (must come BEFORE rate limiters that read body) ──
+app.use(express.json({ limit: '10kb' }));          // ← 10kb not 10mb
+app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 app.use(cookieParser());
 
-//api for atentucaton only
-app.use('api/v1/authentication',authR);
-app.use('api/v1/project', projectR)
+// ── 3. Compression ──────────────────────────────────────────────
+app.use(compression());
 
+// ── 4. Rate limiting (after body parsing) ───────────────────────
+app.use('/api/v1/authentication', authLimiter);
 
-module.exports = app ;
+// Read project routes
+app.use(['/api/v1/projects', '/api/v1/project'], projectReadLimiter);
+
+// Write project routes (override with stricter limit)
+app.post('/api/v1/projects', projectWriteLimiter);
+app.put('/api/v1/project/:id', projectWriteLimiter);
+app.delete('/api/v1/project/:id', projectWriteLimiter);
+
+// Global fallback for everything else
+app.use(apiLimiter);
+
+// ── 5. Redis connection (non-blocking) ──────────────────────────
+connectRedis().catch((err) => {
+  console.error('Redis connection failed — continuing without cache:', err.message);
+});
+
+// ── 6. Routes ───────────────────────────────────────────────────
+app.use('/api/v1/authentication', authR);   // ← leading slash added
+app.use('/api/v1/proj', projectR);
+app.use('/api/v1/skill', skillRoutes);  // Add this line
+
+// ── 7. Health check ─────────────────────────────────────────────
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: 'Server is healthy',
+    timestamp: new Date().toISOString(),
+    services: {
+      redis: redisClient.isReady ? 'connected' : 'disconnected',   // ← isReady not getClient()
+      mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
+    }
+  });
+});
+
+// ── 8. Error handler (always last) ──────────────────────────────
+app.use(errorHandler);
+
+module.exports = app;
