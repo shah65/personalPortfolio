@@ -1,0 +1,38 @@
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - MONGO_URI=mongodb+srv://ctech8868_db_user:8m6K2uWVVGBQeNqd@portfolioclustor.uktzedi.mongodb.net/portfolio?retryWrites=true&w=majority&appName=portfolioClustor
+      - JWT_SECRET=shahkhan.dev
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      - redis
+    networks:
+      - portfolio-network
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - portfolio-network
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    # No password required
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    networks:
+      - portfolio-network
+
+networks:
+  portfolio-network:
+    driver: bridge

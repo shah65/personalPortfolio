@@ -1,0 +1,31 @@
+name: Build and Push Docker Images
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+
+      - name: Build Backend
+        run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/portfolio-backend:latest ./backend
+          docker push ${{ secrets.DOCKER_USERNAME }}/portfolio-backend:latest
+
+      - name: Build Frontend
+        run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/portfolio-frontend:latest ./frontend
+          docker push ${{ secrets.DOCKER_USERNAME }}/portfolio-frontend:latest

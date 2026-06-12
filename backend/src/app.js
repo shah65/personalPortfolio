@@ -16,7 +16,9 @@ const app = express();
 
 //cots setup
 app.use(cors({
-  origin:["http://localhost:5173","http://localhost:5174","http://localhost:3000"],
+  origin: ["http://localhost:5173", "http://localhost:5174", "http://localhost:3000", 'http://localhost',  
+    'http://127.0.0.1',
+    'http://127.0.0.1:80'],
   credentials:true, //allowed cooke to be sent
   methods:["GET","POST","DELETE","PUT"],
   allowedHeaders:['Content-Type','Authorization','Cookie'],
